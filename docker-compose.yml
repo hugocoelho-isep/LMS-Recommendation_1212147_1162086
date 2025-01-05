@@ -1,12 +1,12 @@
 services:
-    lmslendings_1:
-        image: lmslendings:latest
-        container_name: lmslendings1_in_lms_network
+    lmsrecommendation_1:
+        image: lmsrecommendation:latest
+        container_name: lmsrecommendation1_in_lms_network
         build:
             context: .
             dockerfile: Dockerfile
         ports:
-            - "8089:8080"
+            - "8086:8080"
         environment:
             SPRING_PROFILES_ACTIVE: instance1,bootstrap
         networks:
@@ -14,14 +14,14 @@ services:
         volumes:
             - "uploaded_files_volume_1:/tmp"
 
-    lmslendings_2:
-        image: lmslendings:latest
-        container_name: lmslendings2_in_lms_network
+    lmsrecommendation_2:
+        image: lmsrecommendation:latest
+        container_name: lmsrecommendation2_in_lms_network
         build:
             context: .
             dockerfile: Dockerfile
         ports:
-            - "8090:8080"
+            - "8087:8080"
         environment:
             SPRING_PROFILES_ACTIVE: instance2,bootstrap
         networks:

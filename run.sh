@@ -9,8 +9,8 @@ else
   exit
 fi
 
-db_base_name="lendings_db_"
-db_base_port=59000
+db_base_name="recommendations_db_"
+db_base_port=53000
 
 # Check the latest DB instance
 latest_i=$(docker ps --filter "name=^${db_base_name}[1-9][0-9]*$" --format "{{.Names}}" | sort -V | tail -n 1 | grep -oE '[0-9]+$')
@@ -58,24 +58,24 @@ else
   fi
 fi
 
-# Scaling the lmslendings service
-echo "Running $1 instances of lmslendings, each connecting to a different postgres DBMS"
+# Scaling the lmsrecommendations service
+echo "Running $1 instances of lmsrecommendations, each connecting to a different postgres DBMS"
 
-if docker service ls --filter "name=lmslendings" --format "{{.Name}}" | grep -q "^lmslendings$"; then
-  docker service scale lmslendings=$1
+if docker service ls --filter "name=lmsrecommendations" --format "{{.Name}}" | grep -q "^lmsrecommendations$"; then
+  docker service scale lmsrecommendations=$1
 else
   docker service create -d \
-    --name lmslendings \
+    --name lmsrecommendations \
     --env SPRING_PROFILES_ACTIVE=bootstrap \
-    --env spring.datasource.url=jdbc:postgresql://lendings_db_{{.Task.Slot}}:5432/postgres \
+    --env spring.datasource.url=jdbc:postgresql://recommendations_db_{{.Task.Slot}}:5432/postgres \
     --env spring.datasource.username=postgres \
     --env spring.datasource.password=password \
     --env file.upload-dir=/tmp/uploads-psoft-g1-instance{{.Task.Slot}} \
     --env spring.rabbitmq.host=rabbitmq \
     --mount type=bind,source=/c/Users/hugo/SomeDirectory,target=/tmp/uploads-psoft-g1-instance{{.Task.Slot}} \
-    --publish 8085:8080 \
+    --publish 8089:8080 \
     --network lms_overlay_attachable_network \
-    lmslendings:latest
+    lmsrecommendations:latest
 
-  docker service scale lmslendings=$1
+  docker service scale lmsrecommendations=$1
 fi

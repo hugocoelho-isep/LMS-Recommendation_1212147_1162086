@@ -9,12 +9,15 @@ import org.springframework.context.annotation.Profile;
 import pt.psoft.g1.psoftg1.bookmanagement.api.BookEventRabbitmqReceiver;
 import pt.psoft.g1.psoftg1.bookmanagement.services.BookService;
 import pt.psoft.g1.psoftg1.lendingmanagement.api.LendingEventRabbitmqReceiver;
+import pt.psoft.g1.psoftg1.recommendationmanagement.api.RecommendationEventRabbitmqReceiver;
+import pt.psoft.g1.psoftg1.recommendationmanagement.services.RecommendationService;
 import pt.psoft.g1.psoftg1.shared.model.LendingEvents;
 import pt.psoft.g1.psoftg1.lendingmanagement.services.LendingService;
 import pt.psoft.g1.psoftg1.readermanagement.api.ReaderEventRabbitmqReceiver;
 import pt.psoft.g1.psoftg1.readermanagement.services.ReaderService;
 import pt.psoft.g1.psoftg1.shared.model.BookEvents;
 import pt.psoft.g1.psoftg1.shared.model.ReaderEvents;
+import pt.psoft.g1.psoftg1.shared.model.RecommendationEvents;
 
 @Profile("!test")
 @Configuration
@@ -34,6 +37,11 @@ public class RabbitmqClientConfig {
         return new DirectExchange("LMS.books");
     }
 
+    @Bean(name = "recommendDirectExchange")
+    public DirectExchange directRecommendations() {
+        return new DirectExchange("LMS.recommendations");
+    }
+
     private static class ReceiverConfig {
 
         @Bean(name = "autoDeleteQueue_Lending_Created")
@@ -45,6 +53,17 @@ public class RabbitmqClientConfig {
         @Bean(name = "autoDeleteQueue_Lending_Updated")
         public Queue autoDeleteQueue_Lending_Updated() {
             System.out.println("autoDeleteQueue_Lending_Updated updated!");
+            return new AnonymousQueue();
+        }
+
+        @Bean(name = "autoDeleteQueue_Lending_With_Recommendation")
+        public Queue autoDeleteQueue_Lending_With_Recommendation() {
+            System.out.println("autoDeleteQueue_Lending_With_Recommendation updated!");
+            return new AnonymousQueue();
+        }
+
+        @Bean(name = "autoDeleteQueue_Lending_Recommendation_Failed")
+        public Queue autoDeleteQueue_Lending_Recommendation_Failed() {
             return new AnonymousQueue();
         }
 
@@ -63,6 +82,22 @@ public class RabbitmqClientConfig {
             return BindingBuilder.bind(autoDeleteQueue_Lending_Updated)
                     .to(direct)
                     .with(LendingEvents.LENDING_UPDATED);
+        }
+
+        @Bean
+        public Binding binding3(@Qualifier("directExchangeLendings") DirectExchange direct,
+                                Queue autoDeleteQueue_Lending_With_Recommendation) {
+            return BindingBuilder.bind(autoDeleteQueue_Lending_With_Recommendation)
+                    .to(direct)
+                    .with(LendingEvents.LENDING_UPDATED_WITH_RECOMMENDATION);
+        }
+
+        @Bean
+        public Binding binding10(@Qualifier("directExchangeLendings") DirectExchange direct,
+                                Queue autoDeleteQueue_Lending_Recommendation_Failed) {
+            return BindingBuilder.bind(autoDeleteQueue_Lending_Recommendation_Failed)
+                    .to(direct)
+                    .with(LendingEvents.LENDING_RECOMMENDATION_FAILED);
         }
 
         @Bean(name = "LendingEventRabbitmqReceiver")
@@ -140,6 +175,30 @@ public class RabbitmqClientConfig {
         @Bean(name = "bookReceiver")
         public BookEventRabbitmqReceiver receiver(BookService bookService, @Qualifier("autoDeleteQueue_Book_Created") Queue autoDeleteQueue_Book_Created) {
             return new BookEventRabbitmqReceiver(bookService);
+        }
+
+
+        /* ------- RECOMMENDATION ------- */
+
+        @Bean(name = "autoDeleteQueue_Recommendation_Created")
+        public Queue autoDeleteQueue_Recommendation_Created() {
+            System.out.println("autoDeleteQueue_Recommendation_Created created!");
+            return new AnonymousQueue();
+        }
+
+
+        @Bean
+        public Binding binding8(@Qualifier("recommendDirectExchange") DirectExchange direct,
+                                @Qualifier("autoDeleteQueue_Recommendation_Created") Queue autoDeleteQueue_Recommendation_Created) {
+            return BindingBuilder.bind(autoDeleteQueue_Recommendation_Created)
+                    .to(direct)
+                    .with(RecommendationEvents.RECOMMENDATION_CREATED);
+        }
+
+
+        @Bean(name = "recommendationReceiver")
+        public RecommendationEventRabbitmqReceiver receiver(RecommendationService recommendationService, @Qualifier("autoDeleteQueue_Recommendation_Created") Queue autoDeleteQueue_Recommendation_Created) {
+            return new RecommendationEventRabbitmqReceiver(recommendationService);
         }
     }
 }

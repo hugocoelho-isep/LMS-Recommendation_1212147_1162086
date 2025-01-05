@@ -32,9 +32,9 @@ public class LendingView {
 
     private Integer fineValueInCents;
 
-    @Setter
-    @Getter
-    private LendingLinksView _links;
+//    @Setter
+//    @Getter
+//    private LendingLinksView _links;
 }
 
 /*>

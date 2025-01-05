@@ -1,12 +1,12 @@
 
-docker service scale lmslendings=0
-remove=$(docker service rm lmslendings)
+docker service scale lmsrecommendations=0
+remove=$(docker service rm lmsrecommendations)
 
-if [[ "$remove" == "lmslendings" ]]; then
-  echo "Stopped lmslendings"
+if [[ "$remove" == "lmsrecommendations" ]]; then
+  echo "Stopped lmsrecommendations"
 
-    db_base_name="lendings_db_"
-    db_base_port=59000
+    db_base_name="recommendations_db_"
+    db_base_port=53000
 
     latest_i=$(docker ps --filter "name=^${db_base_name}[1-9][0-9]*$" --format "{{.Names}}" | sort -V | tail -n 1 | grep -oE '[0-9]+$')
 
@@ -20,5 +20,5 @@ if [[ "$remove" == "lmslendings" ]]; then
       echo "Stopped ${db_name} on port ${db_port}"
     done
 else
-  echo "Could not stop lmslendings"
+  echo "Could not stop lmsrecommendations"
 fi

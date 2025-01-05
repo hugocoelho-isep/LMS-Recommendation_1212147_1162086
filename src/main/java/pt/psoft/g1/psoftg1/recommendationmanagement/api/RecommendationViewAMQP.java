@@ -1,4 +1,5 @@
-package pt.psoft.g1.psoftg1.lendingmanagement.api;
+package pt.psoft.g1.psoftg1.recommendationmanagement.api;
+
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -7,8 +8,8 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@Schema(description = "A Lending from AMQP communication")
-public class LendingViewAMQP {
+@Schema(description = "A Recommendation from AMQP communication")
+public class RecommendationViewAMQP {
 
     @NotNull
     private String lendingNumber;
@@ -26,15 +27,5 @@ public class LendingViewAMQP {
 
     private LocalDate returnedDate;
 
+    private Boolean isRecommended;
 }
-
-/*>
-A: a ambos deve ser facultado:
->- lending number
->- book title
->- lending date
->- return date
->- number of days till return date (if applicable)
->- number of days in overdue (if applicable)
->- fine amount (if applicable)
-*/
